@@ -25,5 +25,4 @@ class SimpleHttpServerConstructorTest {
             new SimpleHttpServer(-8080);
         });
     }
-
 }

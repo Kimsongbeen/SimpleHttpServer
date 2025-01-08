@@ -13,11 +13,9 @@
 package com.nhnacademy.http;
 
 import lombok.extern.slf4j.Slf4j;
-
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Objects;
 
 @Slf4j
 public class SimpleHttpServer {
@@ -26,109 +24,31 @@ public class SimpleHttpServer {
     private static final int DEFAULT_PORT=8080;
     private final ServerSocket serverSocket;
 
-    //TODO#1 CRLF를 선언합니다. CRLF는 Carriage Return (CR) 와 Line Feed (LF)를 의미하며, HTTP 프로토콜에서 줄 바꿈을 나타내기 위해 사용됩니다. 이는 \r\n으로 표현됩니다.
-    private static final String CRLF="\r\n";
-
-    public SimpleHttpServer() throws IOException {
-        //TODO#2 기본 port는 DEFAULT_PORT을 사용합니다.
+    public SimpleHttpServer(){
         this(DEFAULT_PORT);
     }
 
     public SimpleHttpServer(int port) {
-        //TODO#3 port range <=0 IllegalArgumentException 예외가 발생 합니다. 적절한 Error Message를 작성해주세요.
-
-        if(port <= 0){
-            throw new IllegalArgumentException("port must be greater than 0");
-        }
-        this.port = port;
+        //TODO#1 - port < 0 IllegalArgumentException이 발생 합니다. 적절한 Error Message를 작성하세요
 
 
-        //TODO#4 serverSocket을 초기화 합니다.
-        try {
-            serverSocket = new ServerSocket(this.port);
-        }catch(IOException e){
-            throw new RuntimeException(e);
-        }
+        //TODO#2 serverSocket을 생성합니다.
+        this.port = 0;
+        serverSocket = null;
     }
 
-    public void start() throws IOException {
+    public synchronized void start() throws IOException {
+        try{
+            //TODO#3 interrupt가 발생하면 application이 종료 합니다. while 조건을 수정하세요.
+            while(true){
+                //TODO#4 - client가 연결될 때 까지 대기 합니다.
+                Socket client = null;
 
-        while(true){
-
-            try(
-                    //TODO#5 client가 연결될 때 까지 대기 합니다.
-                    Socket client = serverSocket.accept();
-
-                    //TODO#6 입출력을 위해서  Reader, Writer를 선언 합니다.
-                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(client.getInputStream()));
-                    BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(client.getOutputStream()));
-            ) {
-
-                StringBuilder requestBuilder = new StringBuilder();
-                log.debug("------HTTP-REQUEST_start()");
-                while (true) {
-                    String line = bufferedReader.readLine();
-                    //TODO#7  requestBuilder에 append 합니다.
-                    requestBuilder.append(line);
-
-                    log.debug("{}", line);
-
-                    //TODO#8 종료 조건 null or size==0
-                    if(Objects.isNull(line) || line.isEmpty()){
-                        break;
-                    }
-                }
-                log.debug("------HTTP-REQUEST_end()");
-
-                //TODO#9 clinet에 응답할 html을 작성합니다.
-                /*
-                    <html>
-                        <body>
-                            <h1>hello java</h1>
-                        </body>
-                    </html>
-                */
-
-                StringBuilder responseBody = new StringBuilder();
-                responseBody.append("<html>");
-                responseBody.append("<body>");
-                responseBody.append("<h1>hello java</h1>");
-                responseBody.append("</body>");
-                responseBody.append("</html>");
-
-                StringBuilder responseHeader = new StringBuilder();
-
-                //TODO#10 HTTP/1.0 200 OK
-                responseHeader.append(String.format("HTTP/1.0 200 OK%s", CRLF));
-
-                responseHeader.append(String.format("Server: HTTP server/0.1%s",CRLF));
-
-                //TODO#11 Content-type: text/html; charset=UTF-8"
-                responseHeader.append(String.format("Content-type: text/html; charset=%s%s", "UTF-8", CRLF));
-
-
-                //TODO#12  Connection: close 헤더를 사용하면 해당 요청 후에 연결이 닫히게 된다.
-                responseHeader.append(String.format("Connection: closed%s",CRLF));
-
-                //TODO#13 responseBody의  Content-Length를 설정 합니다.
-                responseHeader.append(String.format("Content-Length: %d %s%s", responseBody.toString().getBytes().length, CRLF, CRLF));
-
-                //TODO#14 write Response Header
-                bufferedWriter.write(responseHeader.toString());
-
-                //TODO#15 write Response Body
-                bufferedWriter.write(responseBody.toString());
-
-                //TODO#16 buffer에 등록된 Response (header, body) flush 합니다.(socket을 통해서 client에 응답 합니다.)
-                bufferedWriter.flush();
-
-
-                log.debug("header:{}",responseHeader);
-                log.debug("body:{}",responseBody);
-
-            }catch (IOException e){
-                log.error("socket error : {}",e);
+                //TODO#5 - Client와 서버가 연결 되면 HttpRequestHandler를 이용해서 Thread을 생성하고 실행 합니다.
+                Thread thread = null;
             }
-        }//end while
-    }//end start
+        }catch (Exception e){
+            log.debug("{},",e.getMessage());
+        }
+    }
 }
