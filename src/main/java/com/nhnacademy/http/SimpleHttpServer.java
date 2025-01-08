@@ -13,50 +13,98 @@
 package com.nhnacademy.http;
 
 import lombok.extern.slf4j.Slf4j;
-import java.io.*;
-import java.net.ServerSocket;
-import java.net.Socket;
+import org.junit.jupiter.api.*;
+
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.util.Optional;
 
 @Slf4j
-public class SimpleHttpServer {
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+class SimpleHttpServerTest {
 
-    private final int port;
-    private static final int DEFAULT_PORT=8080;
-    private final ServerSocket serverSocket;
+    static Thread thread;
+    static final int TEST_PORT = 9999;
 
-    public SimpleHttpServer(){
-        this(DEFAULT_PORT);
+    @BeforeAll
+    static void beforeAllSetUp(){
+        thread = new Thread(()->{
+            SimpleHttpServer simpleHttpServer = new SimpleHttpServer(TEST_PORT);
+            simpleHttpServer.start();
+        });
+        thread.start();
     }
 
-    public SimpleHttpServer(int port) {
-        //TODO#1 - port < 0 IllegalArgumentException이 발생 합니다. 적절한 Error Message를 작성하세요
-        if(port < 0){
-            throw new IllegalArgumentException("port must be a positive integer");
-        }
+    @Test
+    @Order(1)
+    @DisplayName("threadB - 홀수요청")
+    void requestEvenNumber() throws URISyntaxException, IOException, InterruptedException {
+        HttpClient httpClient = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(new URI(String.format("http://localhost:%d",TEST_PORT)))
+                .build();
 
-        //TODO#2 serverSocket을 생성합니다.
-        this.port = port;
+        HttpResponse<String> response = httpClient.send(request,HttpResponse.BodyHandlers.ofString());
+        log.debug("response:{}",response.body());
 
-        try{
-            serverSocket = new ServerSocket(port);
-        }catch(Exception e){
-            throw new RuntimeException(e);
-        }
+        //TODO#105 threadB 문자열이 포함되었는지 검증 합니다.
+
     }
 
-    public synchronized void start() throws IOException {
-        try{
-            //TODO#3 interrupt가 발생하면 application이 종료 합니다. while 조건을 수정하세요.
-            while(!Thread.currentThread().isInterrupted()){
-                //TODO#4 - client가 연결될 때 까지 대기 합니다.
-                Socket client = serverSocket.accept();
+    @Test
+    @Order(2)
+    @DisplayName("threadB - 짝수요청")
+    void requestOddNumber() throws URISyntaxException, IOException, InterruptedException {
+        HttpClient httpClient = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(new URI(String.format("http://localhost:%d",TEST_PORT)))
+                .build();
 
-                //TODO#5 - Client와 서버가 연결 되면 HttpRequestHandler를 이용해서 Thread을 생성하고 실행 합니다.
-                Thread thread = new Thread(new HttpRequestHandler(client));
-                thread.start();
-            }
-        }catch (Exception e){
-            log.debug("{},",e.getMessage());
-        }
+        HttpResponse<String> response = httpClient.send(request,HttpResponse.BodyHandlers.ofString());
+        log.debug("response:{}",response.body());
+
+        //TODO#106 threadA 문자열이 포함되었는지 검증 합니다.
+
+    }
+
+    @Test
+    @Order(3)
+    @DisplayName("status code : 200 ok")
+    void request1() throws URISyntaxException, IOException, InterruptedException {
+        //TODO#107 response.statusCode()인지 검증 합니다.
+
+    }
+
+    @Test
+    @Order(4)
+    @DisplayName("response: hello java")
+    void request2() throws URISyntaxException, IOException, InterruptedException {
+        //TODO#108 response.body()에 'hello' or 'java' 문자열이 포함되는지 검증 합니다.
+
+    }
+
+    @Test
+    @Order(5)
+    @DisplayName("content-type")
+    void request3() throws URISyntaxException, IOException, InterruptedException {
+        //TODO#109 Content-Type header가 text/html 인지 검증 합니다.
+
+    }
+
+    @Test
+    @Order(6)
+    @DisplayName("charset utf-8")
+    void request4() throws URISyntaxException, IOException, InterruptedException {
+        //TODO#110 charset이 utf-8인지 검증 합니다.
+
+    }
+
+    @AfterAll
+    static void tearDown() throws InterruptedException {
+        Thread.sleep(1000);
     }
 }
