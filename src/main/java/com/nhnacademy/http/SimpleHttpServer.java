@@ -13,98 +13,68 @@
 package com.nhnacademy.http;
 
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.*;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.util.Optional;
+import java.io.*;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.concurrent.atomic.AtomicLong;
+
 
 @Slf4j
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-class SimpleHttpServerTest {
+public class SimpleHttpServer {
 
-    static Thread thread;
-    static final int TEST_PORT = 9999;
+    private final int port;
+    private static final int DEFAULT_PORT=8080;
 
-    @BeforeAll
-    static void beforeAllSetUp(){
-        thread = new Thread(()->{
-            SimpleHttpServer simpleHttpServer = new SimpleHttpServer(TEST_PORT);
-            simpleHttpServer.start();
-        });
-        thread.start();
+    private final AtomicLong atomicCounter;
+
+    public SimpleHttpServer(){
+        this(DEFAULT_PORT);
+    }
+    public SimpleHttpServer(int port) {
+        //TODO#9 port <=0 이면 IllegalArgumentException 발생합니다. 적절한 Error Message를 작성하세요.
+        if(port <= 0){
+            throw new IllegalArgumentException("port must be greater than 0");
+        }
+
+        //TODO#10 port와 atomicCounter를 초기화 합니다.
+        this.port = port;
+        atomicCounter = new AtomicLong(0);
     }
 
-    @Test
-    @Order(1)
-    @DisplayName("threadB - 홀수요청")
-    void requestEvenNumber() throws URISyntaxException, IOException, InterruptedException {
-        HttpClient httpClient = HttpClient.newHttpClient();
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(new URI(String.format("http://localhost:%d",TEST_PORT)))
-                .build();
+    public void start(){
+        try(ServerSocket serverSocket = new ServerSocket(port);){
 
-        HttpResponse<String> response = httpClient.send(request,HttpResponse.BodyHandlers.ofString());
-        log.debug("response:{}",response.body());
+            HttpRequestHandler httpRequestHandlerA = new HttpRequestHandler();
+            HttpRequestHandler httpRequestHandlerB = new HttpRequestHandler();
 
-        //TODO#105 threadB 문자열이 포함되었는지 검증 합니다.
+            //TODO#11 threadA를 생성하고 시작 합니다. thread-name : threadA 설정 합니다.
+            Thread threadA = new Thread(httpRequestHandlerA);
+            threadA.setName("threadA");
+            threadA.start();
 
-    }
+            //TODO#12 threadB를 생성하고 시작 합니다. thread-name: threadB 설정 합니다.
+            Thread threadB = new Thread(httpRequestHandlerB);
+            threadB.setName("threadB");
+            threadB.start();
 
-    @Test
-    @Order(2)
-    @DisplayName("threadB - 짝수요청")
-    void requestOddNumber() throws URISyntaxException, IOException, InterruptedException {
-        HttpClient httpClient = HttpClient.newHttpClient();
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(new URI(String.format("http://localhost:%d",TEST_PORT)))
-                .build();
+            while(true){
+                Socket client = serverSocket.accept();
+                /*TODO#13 count값이 짝수이면 httpRequestHandlerA에 client를 추가 합니다.
+                          count값이 홀수라면 httpRequestHandlerB에 clinet를 추가 합니다.
+                */
+                long count = atomicCounter.incrementAndGet();
 
-        HttpResponse<String> response = httpClient.send(request,HttpResponse.BodyHandlers.ofString());
-        log.debug("response:{}",response.body());
+                log.debug("count:{}",atomicCounter);
 
-        //TODO#106 threadA 문자열이 포함되었는지 검증 합니다.
-
-    }
-
-    @Test
-    @Order(3)
-    @DisplayName("status code : 200 ok")
-    void request1() throws URISyntaxException, IOException, InterruptedException {
-        //TODO#107 response.statusCode()인지 검증 합니다.
-
-    }
-
-    @Test
-    @Order(4)
-    @DisplayName("response: hello java")
-    void request2() throws URISyntaxException, IOException, InterruptedException {
-        //TODO#108 response.body()에 'hello' or 'java' 문자열이 포함되는지 검증 합니다.
-
-    }
-
-    @Test
-    @Order(5)
-    @DisplayName("content-type")
-    void request3() throws URISyntaxException, IOException, InterruptedException {
-        //TODO#109 Content-Type header가 text/html 인지 검증 합니다.
-
-    }
-
-    @Test
-    @Order(6)
-    @DisplayName("charset utf-8")
-    void request4() throws URISyntaxException, IOException, InterruptedException {
-        //TODO#110 charset이 utf-8인지 검증 합니다.
-
-    }
-
-    @AfterAll
-    static void tearDown() throws InterruptedException {
-        Thread.sleep(1000);
+                if(count % 2 == 0){
+                    httpRequestHandlerA.addRequest(client);
+                }else{
+                    httpRequestHandlerB.addRequest(client);
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

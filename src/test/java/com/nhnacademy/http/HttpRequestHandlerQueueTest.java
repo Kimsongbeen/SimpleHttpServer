@@ -44,7 +44,7 @@ class HttpRequestHandlerQueueTest {
     }
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws InterruptedException {
         httpRequestHandler = new HttpRequestHandler();
         for(int i=0; i<9; i++){
             httpRequestHandler.addRequest(new TestSocket(String.format("socket%d",i)));
@@ -84,9 +84,17 @@ class HttpRequestHandlerQueueTest {
                 TestSocket testSocket9 = new TestSocket("socket9");
                 TestSocket testSocket10 = new TestSocket("socket10");
 
-                httpRequestHandler.addRequest(testSocket9);
+                try {
+                    httpRequestHandler.addRequest(testSocket9);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
                 log.debug("2초 대기 후 socket10 추가 됨");
-                httpRequestHandler.addRequest(testSocket10);
+                try {
+                    httpRequestHandler.addRequest(testSocket10);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
             }
         });
         producer.start();
