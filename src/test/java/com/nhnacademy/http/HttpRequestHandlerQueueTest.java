@@ -44,7 +44,7 @@ class HttpRequestHandlerQueueTest {
     }
 
     @BeforeEach
-    void setUp() throws InterruptedException {
+    void setUp() {
         httpRequestHandler = new HttpRequestHandler();
         for(int i=0; i<9; i++){
             httpRequestHandler.addRequest(new TestSocket(String.format("socket%d",i)));
@@ -63,14 +63,15 @@ class HttpRequestHandlerQueueTest {
 
         log.debug("requestQueue-size:{}",requestQueue.size());
         //TODO#101 - requestQueue.size() 10인지 검증 합니다.
-
-
+        Assertions.assertEquals(10, requestQueue.size());
     }
 
     @Test
     @DisplayName("getRequest : socket0")
     void getRequest(){
         //TODO#102 httpRequestHandler.getRequest(); 호출 했을 때 socket0 반환되는지 검증 합니다.
+        TestSocket actual = (TestSocket) httpRequestHandler.getRequest();
+        Assertions.assertEquals("socket0", actual.getName());
 
     }
 
@@ -84,17 +85,9 @@ class HttpRequestHandlerQueueTest {
                 TestSocket testSocket9 = new TestSocket("socket9");
                 TestSocket testSocket10 = new TestSocket("socket10");
 
-                try {
-                    httpRequestHandler.addRequest(testSocket9);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
+                httpRequestHandler.addRequest(testSocket9);
                 log.debug("2초 대기 후 socket10 추가 됨");
-                try {
-                    httpRequestHandler.addRequest(testSocket10);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
+                httpRequestHandler.addRequest(testSocket10);
             }
         });
         producer.start();
@@ -116,12 +109,14 @@ class HttpRequestHandlerQueueTest {
         consumer.start();
 
         //TODO#103 producer or consumer thread가 실행 중 이라면 대기 합니다. yield()를 이용해서 구현 하세요.
-
+        while(producer.isAlive() || consumer.isAlive()){
+            Thread.yield();
+        }
 
         Try<Object> readFieldValue = ReflectionUtils.tryToReadFieldValue(HttpRequestHandler.class, "requestQueue", httpRequestHandler);
         Queue<Socket> requestQueue= (Queue<Socket>) readFieldValue.get();
 
         //TODO#104 requestQueue.size()가 10인지 검증 합니다.
-
+        Assertions.assertEquals(10, requestQueue.size());
     }
 }
