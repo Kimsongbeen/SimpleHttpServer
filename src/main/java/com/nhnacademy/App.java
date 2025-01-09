@@ -14,12 +14,11 @@ package com.nhnacademy;
 
 import com.nhnacademy.http.SimpleHttpServer;
 import lombok.extern.slf4j.Slf4j;
-import java.io.*;
 
 @Slf4j
-public class App
+public class App 
 {
-    public static void main( String[] args ) throws IOException {
+    public static void main( String[] args ){
         SimpleHttpServer simpleHttpServer = new SimpleHttpServer();
         simpleHttpServer.start();
     }

@@ -1,8 +1,11 @@
-# SimpleHttpServer-step3
-### Thread Pool 이란?
-- 작업 수행을 기다리는 초기화된 유휴 스레드 모음입니다. Queue에 스레드가 작업을 받으면 이를 실행하고, 작업이 완료되면 스레드는 다시 새 작업을 기다리게 됩니다.
-- 이러한 방식으로 스레드를 재사용하면서 시스템 리소스에 부담을 주지 않고 처리할 수 있습니다.
-- CPU 및 메모리 사용량을 줄이면서 동시성을 향상할 수 있는 방법을 학습니다.
-- Queue를 이용하여 Client 요청을 처리하는 대기열을 구현합니다.
+# SimpleHttpServer-step4
+## Thread Pool
+- Worker Thread 는 실제로 요청을 처리하는 작업자를 의미합니다. 이런 작업자를 관리하고(보유하고) 있다면 이를 Thread Pool이라고 합니다.
+- Producer Consumer Pattern
+- Producer: Http Web Server는 Client로부터 Request를 생성하는 역할
+- Consumer: Http Request는 Queue에 배치되고 Worker Thread(작업자)에 의해서 요청을 처리하고 적절한 응답을 반환
 
-![img.png](img.png)
+## Channel
+- Http Request Message 공유하는 매개체
+- Queue는 RequestChannel 객체를 통해서 서로 다른 Worker Thread 사이에서 공유됨
+- Executable interface를 구현한 모든 요청은 Worker Thread가 실행할 수 있음

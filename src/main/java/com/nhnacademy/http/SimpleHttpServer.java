@@ -12,12 +12,12 @@
 
 package com.nhnacademy.http;
 
+import com.nhnacademy.http.channel.RequestChannel;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.*;
+import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.concurrent.atomic.AtomicLong;
 
 
 @Slf4j
@@ -26,55 +26,37 @@ public class SimpleHttpServer {
     private final int port;
     private static final int DEFAULT_PORT=8080;
 
-    private final AtomicLong atomicCounter;
+    private final RequestChannel requestChannel;
 
     public SimpleHttpServer(){
         this(DEFAULT_PORT);
     }
-    public SimpleHttpServer(int port) {
-        //TODO#9 port <=0 이면 IllegalArgumentException 발생합니다. 적절한 Error Message를 작성하세요.
-        if(port <= 0){
-            throw new IllegalArgumentException("port must be greater than 0");
-        }
+    private WorkerThreadPool workerThreadPool;
 
-        //TODO#10 port와 atomicCounter를 초기화 합니다.
+    public SimpleHttpServer(int port) {
+        if(port<=0){
+            throw new IllegalArgumentException(String.format("Invalid Port:%d",port));
+        }
         this.port = port;
-        atomicCounter = new AtomicLong(0);
+        //TODO#10 RequestChannel() 초기화 합니다.
+        requestChannel = null;
+
+        //TODO#11 workerThreadPool 초기화 합니다.
+        workerThreadPool = null;
     }
 
     public void start(){
-        try(ServerSocket serverSocket = new ServerSocket(port);){
+        //TODO#12 workerThreadPool을 시작 합니다.
 
-            HttpRequestHandler httpRequestHandlerA = new HttpRequestHandler();
-            HttpRequestHandler httpRequestHandlerB = new HttpRequestHandler();
 
-            //TODO#11 threadA를 생성하고 시작 합니다. thread-name : threadA 설정 합니다.
-            Thread threadA = new Thread(httpRequestHandlerA);
-            threadA.setName("threadA");
-            threadA.start();
-
-            //TODO#12 threadB를 생성하고 시작 합니다. thread-name: threadB 설정 합니다.
-            Thread threadB = new Thread(httpRequestHandlerB);
-            threadB.setName("threadB");
-            threadB.start();
-
+        try(ServerSocket serverSocket = new ServerSocket(8080);){
             while(true){
                 Socket client = serverSocket.accept();
-                /*TODO#13 count값이 짝수이면 httpRequestHandlerA에 client를 추가 합니다.
-                          count값이 홀수라면 httpRequestHandlerB에 clinet를 추가 합니다.
-                */
-                long count = atomicCounter.incrementAndGet();
+                //TODO#13 Queue(requestChannel)에 HttpJob 객체를 배치 합니다.
 
-                log.debug("count:{}",atomicCounter);
-
-                if(count % 2 == 0){
-                    httpRequestHandlerA.addRequest(client);
-                }else{
-                    httpRequestHandlerB.addRequest(client);
-                }
             }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        }catch (IOException e){
+            log.error("server error:{}",e);
         }
     }
 }
