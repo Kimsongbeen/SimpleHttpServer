@@ -132,5 +132,4 @@ public class ResponseUtils {
         responseHeader.append(String.format("Content-Length:%d %s%s",contentLength,System.lineSeparator(),CRLF));
         return responseHeader.toString();
     }
-
 }

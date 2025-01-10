@@ -13,12 +13,19 @@
 package com.nhnacademy.http.channel;
 
 import com.nhnacademy.http.request.HttpRequest;
+import com.nhnacademy.http.request.HttpRequestImpl;
 import com.nhnacademy.http.response.HttpResponse;
+import com.nhnacademy.http.response.HttpResponseImpl;
 import com.nhnacademy.http.util.ResponseUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 
 @Slf4j
 public class HttpJob implements Executable {
@@ -32,10 +39,14 @@ public class HttpJob implements Executable {
         /*TODO#5 client null check, IllegalArgumentException 발생 합니다. 적절한 ErrorMessage를 작성하세요
             httpRequest, httpResponse, client 초기화 합니다.
          */
+        if(Objects.isNull(client)){
+            throw new IllegalArgumentException("client is null");
+        }
 
-        this.httpRequest = null;
-        this.httpResponse = null;
-        this.client = null;
+        this.httpRequest = new HttpRequestImpl(client);
+        this.httpResponse = new HttpResponseImpl(client);
+        log.debug("HttpJob ERROR");
+        this.client = client;
     }
 
     public HttpRequest getHttpRequest() {
@@ -43,7 +54,7 @@ public class HttpJob implements Executable {
     }
 
     @Override
-    public void execute(){
+    public void execute() {
 
         log.debug("method:{}", httpRequest.getMethod());
         log.debug("uri:{}", httpRequest.getRequestURI());
@@ -60,22 +71,45 @@ public class HttpJob implements Executable {
         */
         if(!ResponseUtils.isExist(httpRequest.getRequestURI())){
             //404 - not -found
-            responseBody = null;
-            responseHeader = null;
+            try{
+
+                responseBody = ResponseUtils.tryGetBodyFromFile(ResponseUtils.DEFAULT_404);
+                responseHeader = ResponseUtils.createResponseHeader(404, "utf-8", responseBody.getBytes("utf-8").length);
+            }catch (IOException e){
+                throw new RuntimeException(e);
+            }
         }else{
             //파일이 존재 한다면..
             /*TODO#8 responseBody에 응답할 html 파일을 읽습니다.
               - ResponseUtils.tryGetBodyFromFile(httpRequest.getRequestURI()) 이용하여 구현 합니다.
             */
-
-            responseBody = null;
-            responseHeader = null;
+            try{
+                responseBody = ResponseUtils.tryGetBodyFromFile(httpRequest.getRequestURI());
+                responseHeader = ResponseUtils.createResponseHeader(200, "utf-8", responseBody.getBytes(StandardCharsets.UTF_8).length);
+            }catch(IOException e){
+                throw new RuntimeException(e);
+            }
         }
 
         //TODO#12 BufferWriter를 사용 하여 responseHeader, responseBody를 client에게 응답 합니다.
-        BufferedWriter bufferedWriter = null;
+        try(BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(client.getOutputStream()))){
 
+            bufferedWriter.write(responseHeader);
+            bufferedWriter.write(responseBody);
+            bufferedWriter.flush();
+
+        }catch (IOException e){
+            throw new RuntimeException(e);
+        }
         //TODO#13 client에게 응답 후 cleint와 연결을 종료 합니다.
-
+        finally{
+            try{
+                if(Objects.nonNull(client) && client.isConnected()){
+                    client.close();
+                }
+            }catch (IOException e){
+                throw new RuntimeException(e);
+            }
+        }
     }
 }
