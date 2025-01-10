@@ -28,7 +28,6 @@ public class HttpRequestHandler implements Runnable {
         if(Objects.isNull(requestChannel)){
             throw new IllegalArgumentException("requestChannel is null");
         }
-        log.debug("requestChannel init");
         this.requestChannel = requestChannel;
     }
 
@@ -36,14 +35,10 @@ public class HttpRequestHandler implements Runnable {
     public void run() {
         while (!Thread.currentThread().isInterrupted()) {
             try {
-                //TODO#14 requestChannel로 부터 httpJob을 할당 받습니다.
                 Executable httpJob = requestChannel.getHttpJob();
-                if(Objects.isNull(httpJob)){
-                    throw new RuntimeException("httpJob is null");
-                }
+                //httpJob 객체의 execute() method를 실행 합니다.
                 httpJob.execute();
-                log.debug("requestHandler run!");
-            } catch (Exception e) {
+            } catch (IOException e) {
                 // 상위 레벨의 다른 코드 또는 스레드가 이 스레드가 인터럽트 되었음을 인지 할 수 있습니다.
                 if(e.getMessage().contains(InterruptedException.class.getName())){
                     Thread.currentThread().interrupt();

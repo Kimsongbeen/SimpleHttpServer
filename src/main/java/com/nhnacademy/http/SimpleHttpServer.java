@@ -39,23 +39,22 @@ public class SimpleHttpServer {
             throw new IllegalArgumentException(String.format("Invalid Port:%d",port));
         }
         this.port = port;
-        //TODO#10 RequestChannel() 초기화 합니다.
+        //RequestChannel() 초기화 합니다.
         requestChannel = new RequestChannel();
 
-        //TODO#11 workerThreadPool 초기화 합니다.
+        //workerThreadPool 초기화 합니다.
         workerThreadPool = new WorkerThreadPool(requestChannel);
     }
 
     public void start(){
-        //TODO#12 workerThreadPool을 시작 합니다.
+        //workerThreadPool을 시작 합니다.
         workerThreadPool.start();
-        log.debug("threadPool start");
 
-        try(ServerSocket serverSocket = new ServerSocket(port);){
+        try(ServerSocket serverSocket = new ServerSocket(8080);){
             while(true){
                 Socket client = serverSocket.accept();
-                log.debug("client is connect");
-                //TODO#13 Queue(requestChannel)에 HttpJob 객체를 배치 합니다.
+                
+                //Queue(requestChannel)에 HttpJob 객체를 배치 합니다.
                 requestChannel.addHttpJob(new HttpJob(client));
             }
         }catch (IOException e){
