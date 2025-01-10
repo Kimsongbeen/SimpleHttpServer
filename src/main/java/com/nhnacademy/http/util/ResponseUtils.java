@@ -21,13 +21,15 @@ import java.util.Objects;
 
 public class ResponseUtils {
     public static final String DEFAULT_404 = "/404.html";
+    public static final String DEFAULT_405 = "/405.html";
     private static final String CRLF="\r\n";
     private ResponseUtils(){}
 
-    enum HttpStatus{
+    public enum HttpStatus{
         OK(200,"OK"),
         NOT_FOUND(404, "Not Found"),
-        UNKNOWN(-1, "Unknown Status");
+        UNKNOWN(-1, "Unknown Status"),
+        METHOD_NOT_ALLOWED(405,"Method Not Allowed");
 
         private final int code;
         private final String desription;
@@ -61,7 +63,7 @@ public class ResponseUtils {
      * @return true or false
      */
     public static boolean isExist(String filePath){
-        /* TODO#7 isExist를 구현합니다.
+        /*
            ex) filePat=/index.html 이면 /resources/index.html이 존재하면 true, 존재하지 않다면 false를 반환 합니다.
            ex) filePath=/ false를 반환 합니다.
         */
@@ -79,7 +81,7 @@ public class ResponseUtils {
      * @throws IOException
      */
     public static String tryGetBodyFromFile(String filePath) throws IOException {
-        /* TODO#9 tryGetBodyFromFile 구현 합니다.
+        /*  tryGetBodyFromFile 구현 합니다.
          * ex) filePath = /index.html -> /resources/index.html 파일을 읽어서 반환 합니다.
          * */
 
@@ -105,7 +107,7 @@ public class ResponseUtils {
      * @return responseHeader를 String 반환
      */
     public static String createResponseHeader(int httpStatusCode, String charset, int contentLength ){
-        /* TODO#11 responseHeader를 생성 합니다. 아래 header 예시를 참고
+        /* responseHeader를 생성 합니다. 아래 header 예시를 참고
 
             - 200 OK
             HTTP/1.0 200 OK
@@ -132,4 +134,5 @@ public class ResponseUtils {
         responseHeader.append(String.format("Content-Length:%d %s%s",contentLength,System.lineSeparator(),CRLF));
         return responseHeader.toString();
     }
+
 }

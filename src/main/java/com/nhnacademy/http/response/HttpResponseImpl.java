@@ -12,46 +12,31 @@
 
 package com.nhnacademy.http.response;
 
-import lombok.extern.slf4j.Slf4j;
-
-import java.io.*;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.Socket;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.util.Objects;
 
 
-@Slf4j
 public class HttpResponseImpl implements HttpResponse {
-    //TODO#4 HttpResponse를 구현 합니다.
 
     private final Socket socket;
     private final DataOutputStream out;
     private String charset="UTF-8";
 
-    public HttpResponseImpl(Socket socket) {
-        if(Objects.isNull(socket)){
-            throw new IllegalArgumentException("socket is null");
-        }
+    public HttpResponseImpl(Socket socket){
         this.socket = socket;
-
-        try{
-            log.debug("out have problem");
-            this.out = new DataOutputStream(socket.getOutputStream());
-        }catch(IOException e){
-            log.debug("HttpResponseImpl ERROR");
+        try {
+            this.out =  new DataOutputStream (socket.getOutputStream());
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
     @Override
     public PrintWriter getWriter() throws IOException {
-        // DataOutputStream을 이용해서 구현하세요
-        // Java에서 기본 데이터 타입들을 이진 형식으로 출력하는 데 사용되는 클래스 입니다.
-        // 예를 들어, 파일이나 네트워크 소켓에 데이터를 효율적으로 저장하거나 전송할 때 유용하게 사용할 수 있습니다.
-        // https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/DataOutputStream.html
-
-        PrintWriter printWriter = new PrintWriter(out, false, Charset.forName(getCharacterEncoding()));
+        PrintWriter printWriter =  new PrintWriter(out,false, Charset.forName(getCharacterEncoding()));
         return printWriter;
     }
 
