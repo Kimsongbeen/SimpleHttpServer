@@ -16,6 +16,7 @@ import com.nhnacademy.http.request.HttpRequest;
 import com.nhnacademy.http.request.HttpRequestImpl;
 import com.nhnacademy.http.response.HttpResponse;
 import com.nhnacademy.http.response.HttpResponseImpl;
+import com.nhnacademy.http.util.ResponseUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -70,7 +71,12 @@ class NotFoundHttpServiceTest {
 
         //TODO#105- response 검증, httpStatuscode: 404, description: Not Found 검증 합니다.
         Assertions.assertAll(
-
+                ()->{
+                    Assertions.assertTrue(response.contains(String.valueOf(ResponseUtils.HttpStatus.NOT_FOUND.getCode())));
+                },
+                ()->{
+                    Assertions.assertTrue(response.contains(String.valueOf(ResponseUtils.HttpStatus.NOT_FOUND.getDesription())));
+                }
         );
     }
 }

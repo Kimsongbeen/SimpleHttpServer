@@ -16,6 +16,7 @@ import com.nhnacademy.http.request.HttpRequest;
 import com.nhnacademy.http.request.HttpRequestImpl;
 import com.nhnacademy.http.response.HttpResponse;
 import com.nhnacademy.http.response.HttpResponseImpl;
+import com.nhnacademy.http.util.ResponseUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -68,9 +69,13 @@ class MethodNotAllowedServiceTest {
         log.debug("response:{}",response);
 
         //TODO#106- response 검증, httpStatuscode: 405, description: Method Not Allowed 검증 합니다.
-
         Assertions.assertAll(
-
+                ()->{
+                    Assertions.assertTrue(response.contains(String.valueOf(ResponseUtils.HttpStatus.METHOD_NOT_ALLOWED.getCode())));
+                },
+                ()->{
+                    Assertions.assertTrue(response.contains(String.valueOf(ResponseUtils.HttpStatus.METHOD_NOT_ALLOWED.getDesription())));
+                }
         );
     }
 }

@@ -14,12 +14,10 @@ package com.nhnacademy.http.service;
 
 import com.nhnacademy.http.SimpleHttpServer;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import java.io.IOException;
+import java.net.HttpRetryException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.http.HttpClient;
@@ -57,13 +55,25 @@ public class MethodNotAllowedIntegrationTest {
         log.debug("response:{}",response.body());
 
         //TODO#107- response.statusCode() ==  405 검증 합니다.
-
+        Assertions.assertTrue(response.statusCode() == 405);
     }
     @Test
     @DisplayName("doPost : 405 method not allowed , /info.html")
     void doPost2() throws URISyntaxException, IOException, InterruptedException {
         //TODO#108 - /info.html은 doGet 구현 되어있습니다. POST 요청을 했을 때 response.statusCode() == 405인지 검증 합니다.
+        HttpClient httpClient = HttpClient.newHttpClient();
+        String url = String.format("http://localhost:%d/info.html", TEST_PORT);
+        log.debug("url:{}", url);
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(new URI(url))
+                .POST(HttpRequest.BodyPublishers.noBody())
+                .build();
 
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+        log.debug("response:{}", response.body());
+
+        Assertions.assertTrue(response.statusCode() == 405);
     }
 
     @AfterAll

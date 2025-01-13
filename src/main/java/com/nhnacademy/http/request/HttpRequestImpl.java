@@ -150,5 +150,4 @@ public class HttpRequestImpl implements HttpRequest {
             headerMap.put(KEY_QUERY_PARAM_MAP, queryMap);
         }
     }
-
 }

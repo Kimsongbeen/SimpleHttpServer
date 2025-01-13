@@ -16,10 +16,13 @@ import com.nhnacademy.http.request.HttpRequest;
 import com.nhnacademy.http.request.HttpRequestImpl;
 import com.nhnacademy.http.response.HttpResponse;
 import com.nhnacademy.http.response.HttpResponseImpl;
-import com.nhnacademy.http.service.HttpService;
+import com.nhnacademy.http.service.*;
+import com.nhnacademy.http.util.ResponseUtils;
+import com.sun.jdi.Method;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.Socket;
+import java.util.Objects;
 
 @Slf4j
 public class HttpJob implements Executable {
@@ -56,12 +59,33 @@ public class HttpJob implements Executable {
             - ex3) /info.html -> InfoHttpService 객체를 httpService에 할당 합니다.
         */
 
+        if(!ResponseUtils.isExist(httpRequest.getRequestURI())){
+            httpService = new NotFoundHttpService();
+        }else if(httpRequest.getRequestURI().equals("/index.html")){
+            httpService = new IndexHttpService();
+        }else if(httpRequest.getRequestURI().equals("/info.html")){
+            httpService = new InfoHttpService();
+        }else if(httpRequest.getRequestURI().equals("/404.html")){
+            httpService = new NotFoundHttpService();
+        }else{
+            httpService = new MethodNotAllowedService();
+        }
+
 
         //TODO#7 httpService.service() 호출 합니다. 호출시 예외 Method Not Allowd 관련 Exception이 발생하면 httpService에 MethodNotAllowdService 객체를 생성해서 할당 합니다.
-
+        try{
+            httpService.service(httpRequest, httpResponse);
+        }catch(RuntimeException e) {
+            httpService = new MethodNotAllowedService();
+            httpService.service(httpRequest, httpResponse);
+        }
 
         //TODO#8 client 연결을 종료 합니다.
-
-
+        try {
+            if(Objects.nonNull(client) && client.isConnected())
+            client.close();
+        }catch(Exception e){
+            throw new RuntimeException(e);
+        }
     }
 }
