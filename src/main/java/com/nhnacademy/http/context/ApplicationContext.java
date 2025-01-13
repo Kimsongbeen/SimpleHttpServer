@@ -10,26 +10,32 @@
  * +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  */
 
-package com.nhnacademy.http.service;
+package com.nhnacademy.http.context;
 
-import com.nhnacademy.http.request.HttpRequest;
-import com.nhnacademy.http.response.HttpResponse;
+import java.util.concurrent.ConcurrentMap;
 
-public interface HttpService {
+//TODO#2 - Context를 구현합니다.
+//Context에는 객체를 생성 후 등록 / 삭제 할 수 있습니다. 즉 공유할 수 있는 환경 입니다.
+public class ApplicationContext  implements Context {
+    ConcurrentMap<String, Object> objectMap;
 
-    default void service(HttpRequest httpRequest, HttpResponse httpResponse){
-        if(httpRequest.getMethod().equals("GET")){
-            doGet(httpRequest, httpResponse);
-        }else if(httpRequest.getMethod().equals("POST")){
-            doPost(httpRequest, httpResponse);
-        }
+    public ApplicationContext() {
+        this.objectMap = null;
     }
 
-    default void doGet(HttpRequest httpRequest, HttpResponse httpResponse){
+
+    @Override
+    public void setAttribute(String name, Object object) {
 
     }
 
-    default void doPost(HttpRequest httpRequest, HttpResponse httpResponse){
+    @Override
+    public void removeAttribute(String name) {
 
+    }
+
+    @Override
+    public Object getAttribute(String name) {
+        return null;
     }
 }

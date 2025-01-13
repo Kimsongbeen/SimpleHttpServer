@@ -10,26 +10,14 @@
  * +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  */
 
-package com.nhnacademy.http.service;
+import com.nhnacademy.http.SimpleHttpServer;
+import lombok.extern.slf4j.Slf4j;
 
-import com.nhnacademy.http.request.HttpRequest;
-import com.nhnacademy.http.response.HttpResponse;
-
-public interface HttpService {
-
-    default void service(HttpRequest httpRequest, HttpResponse httpResponse){
-        if(httpRequest.getMethod().equals("GET")){
-            doGet(httpRequest, httpResponse);
-        }else if(httpRequest.getMethod().equals("POST")){
-            doPost(httpRequest, httpResponse);
-        }
-    }
-
-    default void doGet(HttpRequest httpRequest, HttpResponse httpResponse){
-
-    }
-
-    default void doPost(HttpRequest httpRequest, HttpResponse httpResponse){
-
+@Slf4j
+public class App 
+{
+    public static void main( String[] args ){
+        SimpleHttpServer simpleHttpServer = new SimpleHttpServer();
+        simpleHttpServer.start();
     }
 }

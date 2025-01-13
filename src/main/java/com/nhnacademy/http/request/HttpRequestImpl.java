@@ -93,6 +93,9 @@ public class HttpRequestImpl implements HttpRequest {
     }
 
     private boolean isFirstLine(String line){
+        if(Objects.isNull(line)){
+            return false;
+        }
         if( line.toUpperCase().indexOf("GET") > -1 || line.toUpperCase().indexOf("POST") > -1 ){
             return true;
         }
@@ -150,4 +153,5 @@ public class HttpRequestImpl implements HttpRequest {
             headerMap.put(KEY_QUERY_PARAM_MAP, queryMap);
         }
     }
+
 }

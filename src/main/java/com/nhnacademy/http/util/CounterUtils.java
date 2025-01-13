@@ -10,26 +10,19 @@
  * +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  */
 
-package com.nhnacademy.http.service;
+package com.nhnacademy.http.util;
 
-import com.nhnacademy.http.request.HttpRequest;
-import com.nhnacademy.http.response.HttpResponse;
+public class CounterUtils {
 
-public interface HttpService {
+    public final static String CONTEXT_COUNTER_NAME="Global-Counter";
+    private CounterUtils(){}
 
-    default void service(HttpRequest httpRequest, HttpResponse httpResponse){
-        if(httpRequest.getMethod().equals("GET")){
-            doGet(httpRequest, httpResponse);
-        }else if(httpRequest.getMethod().equals("POST")){
-            doPost(httpRequest, httpResponse);
-        }
-    }
+    public static long increaseAndGet(){
+        /* TODO#6 context에 등록된 CONTEXT_COUNTER_NAME 값을 +1 증가시키고 증가된 값을 반환 합니다.
+         - context에 증가된 값을 저장 합니다.
+         - increaseAndGet() method는 동기화 처리 되어야 합니다.
+        */
 
-    default void doGet(HttpRequest httpRequest, HttpResponse httpResponse){
-
-    }
-
-    default void doPost(HttpRequest httpRequest, HttpResponse httpResponse){
-
+        return 0l;
     }
 }

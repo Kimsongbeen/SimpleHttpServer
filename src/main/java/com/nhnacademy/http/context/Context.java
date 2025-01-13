@@ -10,16 +10,15 @@
  * +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  */
 
-package com.nhnacademy;
+package com.nhnacademy.http.context;
 
-import com.nhnacademy.http.SimpleHttpServer;
-import lombok.extern.slf4j.Slf4j;
-
-@Slf4j
-public class App 
-{
-    public static void main( String[] args ){
-        SimpleHttpServer simpleHttpServer = new SimpleHttpServer();
-        simpleHttpServer.start();
-    }
+//TODO#1 Context Interface 입니다.
+//Application이 구동되는 환경을 Context라고 합니다.
+public interface Context {
+    //Object를 등록합니다.
+    void setAttribute(String name, Object object);
+    //Object를 삭제합니다.
+    void removeAttribute(String name);
+    //Object를 얻습니다.
+    Object getAttribute(String name);
 }

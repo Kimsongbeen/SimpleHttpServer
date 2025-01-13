@@ -22,32 +22,28 @@ import java.io.PrintWriter;
 
 @Slf4j
 public class NotFoundHttpService implements HttpService{
-    /*TODO#4 NotFoundHttpService 구현
-        - 페이지를 찾을 수 없을 때 /resources/404.html응답 합니다.
-        - httpStatusCode : 404
-        - Description: Not Found
-     */
+
     @Override
     public void doGet(HttpRequest httpRequest, HttpResponse httpResponse) {
         //Body-설정
         String responseBody = null;
 
-        try{
+        try {
             responseBody = ResponseUtils.tryGetBodyFromFile(ResponseUtils.DEFAULT_404);
-        }catch(IOException e){
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
         //Header-설정
-        String responseHeader = ResponseUtils.createResponseHeader(ResponseUtils.HttpStatus.NOT_FOUND.getCode(), "UTF-8", responseBody.length());
+        String responseHeader = ResponseUtils.createResponseHeader(ResponseUtils.HttpStatus.NOT_FOUND.getCode(), "UTF-8",responseBody.length());
 
         //PrintWriter 응답
         try(PrintWriter bufferedWriter = httpResponse.getWriter();){
             bufferedWriter.write(responseHeader);
             bufferedWriter.write(responseBody);
             bufferedWriter.flush();
-            log.debug("body: {}", responseBody.toString());
-        } catch (Exception e) {
+            log.debug("body:{}",responseBody.toString());
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }

@@ -19,39 +19,31 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.nio.charset.StandardCharsets;
 
 @Slf4j
 public class MethodNotAllowedService implements HttpService{
-
-    /*TODO#5 MethodNotAllowdService 구현
-        - index.html->doGet() 구현되어 있습니다. -> POST 요청을 하면 405 method not allowd 응답 합니다.
-        - httpStatusCode : 405
-        - Description: Method Not Allowed
-        - /resources/405.html 응답 합니다.
-     */
 
     @Override
     public void service(HttpRequest httpRequest, HttpResponse httpResponse) {
         //Body-설정
         String responseBody = null;
 
-        try{
+        try {
             responseBody = ResponseUtils.tryGetBodyFromFile(ResponseUtils.DEFAULT_405);
-        }catch(IOException e){
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
         //Header-설정
-        String responseHeader = ResponseUtils.createResponseHeader(ResponseUtils.HttpStatus.METHOD_NOT_ALLOWED.getCode(), "UTF-8", responseBody.length());
+        String responseHeader = ResponseUtils.createResponseHeader(ResponseUtils.HttpStatus.METHOD_NOT_ALLOWED.getCode(), "UTF-8",responseBody.length());
 
         //PrintWriter 응답
         try(PrintWriter bufferedWriter = httpResponse.getWriter();){
             bufferedWriter.write(responseHeader);
             bufferedWriter.write(responseBody);
             bufferedWriter.flush();
-            log.debug("body:{}", responseBody.toString());
-        } catch (Exception e) {
+            log.debug("body:{}",responseBody.toString());
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
