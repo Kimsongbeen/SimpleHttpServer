@@ -12,30 +12,55 @@
 
 package com.nhnacademy.http.context;
 
+import com.nhnacademy.http.context.exception.ObjectNotFoundException;
+
+import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 //TODO#2 - Context를 구현합니다.
 //Context에는 객체를 생성 후 등록 / 삭제 할 수 있습니다. 즉 공유할 수 있는 환경 입니다.
-public class ApplicationContext  implements Context {
+public class ApplicationContext implements Context {
     ConcurrentMap<String, Object> objectMap;
 
     public ApplicationContext() {
-        this.objectMap = null;
+        this.objectMap = new ConcurrentHashMap<>();
     }
 
 
     @Override
     public void setAttribute(String name, Object object) {
-
+        check(name);
+        checkvalue(object);
+        objectMap.put(name, object);
     }
 
     @Override
     public void removeAttribute(String name) {
-
+        check(name);
+        objectMap.remove(name);
     }
 
     @Override
     public Object getAttribute(String name) {
-        return null;
+        check(name);
+
+        Object obj = objectMap.get(name);
+        if(Objects.isNull(obj)){
+            throw new ObjectNotFoundException(name);
+        }
+        return obj;
+    }
+
+    public void check(String name){
+        if(Objects.isNull(name) || name.isEmpty()){
+            throw new IllegalArgumentException("name error");
+        }
+    }
+
+    public void checkvalue(Object o){
+        if(Objects.isNull(o)){
+            throw new IllegalArgumentException("value error");
+        }
     }
 }

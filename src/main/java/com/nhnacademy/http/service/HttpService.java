@@ -26,10 +26,10 @@ public interface HttpService {
     }
 
     default void doGet(HttpRequest httpRequest, HttpResponse httpResponse){
-
+        throw new RuntimeException("405 - Method Not Allowd");
     }
 
     default void doPost(HttpRequest httpRequest, HttpResponse httpResponse){
-
+        throw new RuntimeException("405 - Method Not Allowd");
     }
 }
